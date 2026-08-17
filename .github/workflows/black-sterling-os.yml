@@ -1,0 +1,33 @@
+name: Black Sterling OS uptime
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: black-sterling-os-uptime
+  cancel-in-progress: true
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      PRODUCTION_URL: https://black-sterling-os.nexaia.app
+    steps:
+      - name: Vérifier le processus
+        run: >-
+          curl --fail --silent --show-error
+          --connect-timeout 5 --max-time 20
+          --retry 2 --retry-all-errors --retry-delay 5
+          "$PRODUCTION_URL/api/health/live"
+      - name: Vérifier Supabase
+        run: >-
+          curl --fail --silent --show-error
+          --connect-timeout 5 --max-time 20
+          --retry 2 --retry-all-errors --retry-delay 5
+          "$PRODUCTION_URL/api/health/ready"
